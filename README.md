@@ -1,0 +1,2 @@
+# contoh-berita
+CONTOH BERITA
