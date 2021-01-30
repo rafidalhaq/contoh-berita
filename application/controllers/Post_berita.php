@@ -63,13 +63,13 @@ class Post_berita extends CI_Controller {
         
     }
 
-    function view()
-    {
-        $kode=$this->uri->segment(3);
-        $x['data']=$this->m_berita->get_berita_by_kode($kode);
-        $this->load->view('v_post_view', $x);
-        # code...
-    }
+    // function view()
+    // {
+    //     $kode=$this->uri->segment(3);
+    //     $x['data']=$this->m_berita->get_berita_by_kode($kode);
+    //     $this->load->view('v_post_view', $x);
+    //     # code...
+    // }
 
 }
 
