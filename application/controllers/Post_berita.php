@@ -1,77 +1,60 @@
 <?php
+class Post_berita extends CI_Controller{
+	function __construct(){
+		parent::__construct();
+		$this->load->model('m_berita');
+        $this->load->library('upload');
+	}
+	function index(){
+		$this->load->view('v_post_news');
+	}
 
-defined('BASEPATH') OR exit('No direct script access allowed');
+	function simpan_post(){
+		$config['upload_path'] = './assets/images/'; //path folder
+	    $config['allowed_types'] = 'gif|jpg|png|jpeg|bmp'; //type yang dapat diakses bisa anda sesuaikan
+	    $config['encrypt_name'] = TRUE; //nama yang terupload nantinya
 
-class Post_berita extends CI_Controller {
+	    $this->upload->initialize($config);
+	    if(!empty($_FILES['filefoto']['name'])){
+	        if ($this->upload->do_upload('filefoto')){
+	        	$gbr = $this->upload->data();
+	            //Compress Image
+	            $config['image_library']='gd2';
+	            $config['source_image']='./assets/images/'.$gbr['file_name'];
+	            $config['create_thumb']= FALSE;
+	            $config['maintain_ratio']= FALSE;
+	            $config['quality']= '60%';
+	            $config['width']= 710;
+	            $config['height']= 420;
+	            $config['new_image']= './assets/images/'.$gbr['file_name'];
+	            $this->load->library('image_lib', $config);
+	            $this->image_lib->resize();
 
-    
-    public function __construct()
-    {
-        parent::__construct();
-        $this->load->model('m_berita');
-        $this->load->model('upload');
-    
-    }
-    
-    function index()
-    {
-        $this->load->view('v_post_news');
-            
-    }
+	            $gambar=$gbr['file_name'];
+                $jdl=$this->input->post('judul');
+                $berita=$this->input->post('berita');
 
-    function simpan_post()
-    {
-        $config['upload_path'] = './assets/images/';
-        $config['allowed_types'] = 'git|jpg|png|jpeg|bmp';
-        $config['encrypt_name'] = TRUE;
+				$this->m_berita->simpan_berita($jdl,$berita,$gambar);
+				redirect('post_berita/lists');
+		}else{
+			redirect('post_berita');
+	    }
+	                 
+	    }else{
+			redirect('post_berita');
+		}
+				
+	}
 
-        $this->upload->initialiaze($config);
-        if (!empty($_FILES['filefoto']['name'])) {
-            if ($this->upload->do_upload('filefoto')) {
-                $gbr =  $this->upload->data();
-                //compress Image
-                $config['image_library'] = 'gd2';
-                $config['source_image'] = './assets/images/'.$gbr['file_name'];
-                $config['create_thumb'] = 'FALSE';
-                $config['maintain_ratio'] = 'FALSE';
-                $config['quality'] = '60%';
-                $config['width'] = '710';
-                $config['height'] = '420';
-                $config['new_image'] = './assets/images/'.$gbr['file_name'];
-                $this->load->library('image_lib', $config);
-                $this->image_lib->resize();
+	function lists(){
+		$x['data']=$this->m_berita->get_all_berita();
+		$this->load->view('v_post_list',$x);
+	}
 
-                $gambar = $gbr['file_name'];
-                $jdl = $this->input->post('berita');
-
-                $this->m_berita->simpan_berita($jdl,$berita,$gambar);
-                redirect('post_berita/lists');
-                
-            }else{
-                redirect('post_berita');
-            }
-        }else{
-            redirect('post_berita');    
-        }
-        
-    }
-
-    function lists()
-    {
-        $x['data']=$this->m_berita->get_all_berita();
-        $this->load->view('v_post_list', $x);
-        
-    }
-
-    // function view()
-    // {
-    //     $kode=$this->uri->segment(3);
-    //     $x['data']=$this->m_berita->get_berita_by_kode($kode);
-    //     $this->load->view('v_post_view', $x);
-    //     # code...
-    // }
+	function view(){
+		$kode=$this->uri->segment(3);
+		$x['data']=$this->m_berita->get_berita_by_kode($kode);
+		$this->load->view('v_post_view',$x);
+	}
 
 }
-
-/* End of file Post_berita.php */
-
